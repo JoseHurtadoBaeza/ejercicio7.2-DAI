@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <title>Ejercicio 7.2</title>
+</head>
+<body>
+    <form id="f0">
+        <fieldset>
+            <legend>Conversión de cadenas de texto</legend>
+            <label>Introduce la cadena:
+                <input type="text" name="cadena" required>
+            </label>
+            <button>Convertir</button>
+        </fieldset>
+    </form>
+
+    <div id="div1">El resultado de invertir la cadena es: <span id="resultado1"></span></div>
+    <div id="div2">El resultado de quitarle las vocales a la cadena es: <span id="resultado2"></span></div>
+    <div id="foto1">Aquí tienes la foto de un gatito obtenida desde Google Cloud Storage: <img src="https://storage.googleapis.com/dai2122w-jhb3-bfq7b6bx.appspot.com/kitten.png" alt="La imagen de un gatito"></div>
+
+    <script>
+    
+        var cabeceras = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+    
+        function convierteCadena (event) {
+            
+            event.preventDefault(); // evita la recarga de la página
+            const cadena = document.querySelector("#f0 input[name='cadena']").value;
+            let resultado1 = document.querySelector("#resultado1");
+            resultado1.textContent = "";
+            let resultado2 = document.querySelector("#resultado2");
+            resultado2.textContent = "";
+    
+            var url = `/invierte/${cadena}`;
+            var request = {
+                method: 'GET',
+                headers: cabeceras,
+            };
+    
+            // Obtenemos la cadena invertida con una petición GET al servidor
+            fetch(url,request)
+            .then( response => response.json() )
+            .then( r => {
+                //e.innerHTML = '';
+                if(r.result){
+                    const resultado = document.querySelector("#resultado1");
+                    //resultado.textContent += r.result;
+                    resultado.textContent = r.result;
+                }
+            })
+            .catch( error => printError(error) ); 
+
+            url = `https://europe-west6-dai2122bis-jhb3-8959fd52.cloudfunctions.net/quitaVocales?cadena=${cadena}`; // URL de la Google Cloud Function que quita las vocales de una cadena
+            
+            // Obtenemos la cadena con las vocales eliminadas utilzando una Google Cloud Function
+            fetch(url, request)
+            .then( response => response.json() )
+            .then( r => {
+                if(r.result){
+                    const resultado = document.querySelector("#resultado2");
+                    resultado.textContent = r.result;
+                }
+            })
+    
+        }
+    
+        function init(){
+            let e = document.querySelector("#f0");
+            e.addEventListener('submit', convierteCadena, false);
+        }
+    
+        document.addEventListener('DOMContentLoaded', init, false);
+    
+    </script>
+
+</body>
+</html>
+
